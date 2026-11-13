@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#16324f" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#16324f">
   <meta name="description" content="Spiele Sudoku in drei Schwierigkeitsstufen – auch offline." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -13,335 +13,76 @@
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
   <title>Sudoku</title>
   <style>
-    :root {
-      --navy: #16324f;
-      --blue: #2f80ed;
-      --sky: #eaf4ff;
-      --paper: #fffdf7;
-      --ink: #17212b;
-      --muted: #66727f;
-      --line: #b9c7d5;
-      --wrong: #fff0ef;
-      --wrong-ink: #bd3030;
-      --good: #eaf8f0;
-      --shadow: 0 18px 50px rgba(22, 50, 79, .16);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--ink);
-      font-family: ui-rounded, "Nunito", "Segoe UI", system-ui, sans-serif;
-      background:
-        radial-gradient(circle at 13% 8%, #d7edff 0, transparent 28rem),
-        radial-gradient(circle at 90% 90%, #f8e5bd 0, transparent 25rem),
-        #f5f8fb;
-    }
-
-    button, select { font: inherit; }
-
-    .app {
-      width: min(100% - 32px, 960px);
-      margin: 0 auto;
-      padding: 40px 0 48px;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-
-    h1 {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 0;
-      color: var(--navy);
-      font-size: clamp(2rem, 6vw, 3.25rem);
-      letter-spacing: -.06em;
-      line-height: 1;
-    }
-
-    .mark {
-      display: grid;
-      place-items: center;
-      width: 46px;
-      height: 46px;
-      color: white;
-      font-size: 1.45rem;
-      letter-spacing: -.18em;
-      text-indent: -.18em;
-      background: var(--blue);
-      border-radius: 14px;
-      box-shadow: 0 8px 16px rgba(47, 128, 237, .26);
-    }
-
-    .timer {
-      min-width: 115px;
-      padding: 11px 16px;
-      color: var(--navy);
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      text-align: center;
-      background: rgba(255, 255, 255, .68);
-      border: 1px solid rgba(22, 50, 79, .1);
-      border-radius: 999px;
-      backdrop-filter: blur(10px);
-    }
-
-    .game-shell {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 278px;
-      gap: 28px;
-      padding: clamp(18px, 4vw, 36px);
-      background: rgba(255, 255, 255, .76);
-      border: 1px solid rgba(255, 255, 255, .85);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-    }
-
-    .board-wrap { min-width: 0; }
-
-    .sudoku {
-      display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      overflow: hidden;
-      width: min(100%, 560px);
-      margin: 0 auto;
-      aspect-ratio: 1;
-      background: var(--paper);
-      border: 3px solid var(--navy);
-      border-radius: 10px;
-    }
-
-    .cell {
-      position: relative;
-      display: grid;
-      place-items: center;
-      min-width: 0;
-      padding: 0;
-      color: var(--navy);
-      font-family: inherit;
-      font-size: clamp(1rem, 4.15vw, 2rem);
-      font-weight: 800;
-      background: transparent;
-      border: 0;
-      border-right: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      cursor: pointer;
-      transition: background .15s ease, color .15s ease, transform .12s ease;
-    }
-
-    .cell:nth-child(3n) { border-right: 3px solid var(--navy); }
-    .cell:nth-child(9n) { border-right: 0; }
-    .cell:nth-child(n+73) { border-bottom: 0; }
-    .cell:nth-child(n+19):nth-child(-n+27),
-    .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 3px solid var(--navy); }
-
-    .cell.given { color: var(--ink); cursor: default; }
-    .cell.related { background: #eff6fe; }
-    .cell.same { color: #145ab7; background: #daeaff; }
-    .cell.selected { outline: 3px solid var(--blue); outline-offset: -3px; z-index: 1; }
-    .cell.incorrect { color: var(--wrong-ink); background: var(--wrong); }
-    .cell.hinted { color: #18864b; background: var(--good); }
-    .cell:not(.given):hover { background: var(--sky); }
-    .cell:focus-visible { outline: 3px solid var(--blue); outline-offset: -3px; z-index: 2; }
-
-    .side {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .meta {
-      padding: 18px;
-      background: #f4f8fc;
-      border-radius: 16px;
-    }
-
-    .meta label {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--muted);
-      font-size: .78rem;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    select {
-      width: 100%;
-      padding: 10px 12px;
-      color: var(--ink);
-      font-weight: 700;
-      background: white;
-      border: 1px solid #cad5e0;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    .status {
-      min-height: 54px;
-      margin: 0;
-      padding: 13px 14px;
-      color: var(--navy);
-      font-weight: 700;
-      line-height: 1.4;
-      background: #eff6fe;
-      border-radius: 12px;
-    }
-
-    .status.success { color: #136b3b; background: var(--good); }
-
-    .actions { display: grid; gap: 10px; }
-
-    .button {
-      min-height: 44px;
-      padding: 10px 14px;
-      color: var(--navy);
-      font-weight: 800;
-      text-align: left;
-      background: white;
-      border: 1px solid #cad5e0;
-      border-radius: 11px;
-      cursor: pointer;
-      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
-    }
-
-    .button:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(22, 50, 79, .12); }
-    .button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
-    .button.primary { color: white; background: var(--blue); border-color: var(--blue); }
-
-    .numpad {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-    }
-
-    .number {
-      display: grid;
-      place-items: center;
-      min-height: 45px;
-      padding: 0;
-      color: var(--navy);
-      font-size: 1.05rem;
-      font-weight: 900;
-      background: #f4f8fc;
-      border: 0;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    .number:hover { color: white; background: var(--blue); }
-    .number:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
-
-    .hint { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.5; }
-
-    @media (max-width: 720px) {
-      .app { width: min(100% - 20px, 560px); padding-top: 22px; }
-      .game-shell { grid-template-columns: 1fr; gap: 20px; padding: 16px; border-radius: 21px; }
-      .side { display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
-      .meta, .status, .actions, .hint { grid-column: 1 / -1; }
-      .actions { grid-template-columns: repeat(3, 1fr); }
-      .button { min-height: 42px; padding: 8px; font-size: .85rem; text-align: center; }
-      .numpad { grid-column: 1 / -1; grid-template-columns: repeat(9, 1fr); }
-    }
-
-    @media (max-width: 410px) {
-      header { margin-bottom: 17px; }
-      .timer { min-width: 92px; padding: 9px 11px; }
-      .mark { width: 38px; height: 38px; border-radius: 11px; font-size: 1.2rem; }
-      .side { grid-template-columns: 1fr; }
-      .numpad { grid-template-columns: repeat(5, 1fr); }
-      .cell { font-size: clamp(.95rem, 7.2vw, 1.5rem); }
-    }
+    :root { --navy:#16324f; --blue:#2f80ed; --paper:#fffdf7; --ink:#17212b; --muted:#65717e; --line:#c4d0dc; --wrong:#fff0ef; --wrong-ink:#bd3030; --good:#e8f8ef; --sky:#e8f3ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); font-family:ui-rounded,"Nunito","Segoe UI",system-ui,sans-serif; background:radial-gradient(circle at 13% 8%,#d7edff 0,transparent 28rem),radial-gradient(circle at 90% 90%,#f8e5bd 0,transparent 25rem),#f5f8fb; }
+    button,select { font:inherit; }
+    .app { width:min(100% - 32px,960px); margin:auto; padding:40px 0 48px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-bottom:24px; }
+    h1 { display:flex; align-items:center; gap:12px; margin:0; color:var(--navy); font-size:clamp(2rem,6vw,3.25rem); letter-spacing:-.06em; line-height:1; }
+    .mark { display:grid; place-items:center; width:46px; height:46px; color:white; font-size:1.45rem; letter-spacing:-.18em; text-indent:-.18em; background:var(--blue); border-radius:14px; box-shadow:0 8px 16px rgba(47,128,237,.26); }
+    .timer { min-width:115px; padding:11px 16px; color:var(--navy); font-weight:800; font-variant-numeric:tabular-nums; text-align:center; background:rgba(255,255,255,.68); border:1px solid rgba(22,50,79,.1); border-radius:999px; backdrop-filter:blur(10px); }
+    .game-shell { display:grid; grid-template-columns:minmax(0,1fr) 278px; gap:28px; padding:clamp(18px,4vw,36px); background:rgba(255,255,255,.76); border:1px solid rgba(255,255,255,.85); border-radius:28px; box-shadow:0 18px 50px rgba(22,50,79,.16); backdrop-filter:blur(12px); }
+    .board-wrap { min-width:0; }
+    .sudoku { position:relative; display:grid; grid-template-columns:repeat(9,minmax(0,1fr)); grid-template-rows:repeat(9,minmax(0,1fr)); gap:1px; overflow:hidden; width:min(100%,560px); margin:auto; aspect-ratio:1; background:var(--line); border:3px solid var(--navy); border-radius:10px; }
+    .sudoku::before,.sudoku::after { position:absolute; z-index:4; display:block; content:""; pointer-events:none; }
+    .sudoku::before { inset:0; background:linear-gradient(to right,transparent 33.1%,var(--navy) 33.1% 33.9%,transparent 33.9% 66.1%,var(--navy) 66.1% 66.9%,transparent 66.9%); }
+    .sudoku::after { inset:0; background:linear-gradient(to bottom,transparent 33.1%,var(--navy) 33.1% 33.9%,transparent 33.9% 66.1%,var(--navy) 66.1% 66.9%,transparent 66.9%); }
+    .cell { position:relative; z-index:1; display:grid; place-items:center; min-width:0; min-height:0; padding:0; color:var(--navy); font-family:inherit; font-size:clamp(1rem,4.15vw,2rem); font-weight:800; line-height:1; background:var(--paper); border:0; cursor:pointer; transition:background .15s ease,color .15s ease; }
+    .cell.given { color:var(--ink); cursor:default; }
+    .cell.related { background:#eef6ff; }
+    .cell.same { color:#145ab7; background:#d9eaff; }
+    .cell.selected { z-index:5; outline:3px solid var(--blue); outline-offset:-3px; }
+    .cell.incorrect { color:var(--wrong-ink); background:var(--wrong); }
+    .cell.hinted { color:#18864b; background:var(--good); }
+    .cell:not(.given):hover { background:var(--sky); }
+    .cell:focus-visible { z-index:6; outline:3px solid var(--blue); outline-offset:-3px; }
+    .side { display:flex; flex-direction:column; gap:18px; }
+    .meta { padding:18px; background:#f4f8fc; border-radius:16px; }
+    .meta label { display:block; margin-bottom:8px; color:var(--muted); font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    select { width:100%; padding:10px 12px; color:var(--ink); font-weight:700; background:white; border:1px solid #cad5e0; border-radius:10px; cursor:pointer; }
+    .status { min-height:54px; margin:0; padding:13px 14px; color:var(--navy); font-weight:700; line-height:1.4; background:#eff6fe; border-radius:12px; }
+    .status.success { color:#136b3b; background:var(--good); }
+    .actions { display:grid; gap:10px; }
+    .button { min-height:44px; padding:10px 14px; color:var(--navy); font-weight:800; text-align:left; background:white; border:1px solid #cad5e0; border-radius:11px; cursor:pointer; transition:transform .15s ease,box-shadow .15s ease,background .15s ease; }
+    .button:hover { transform:translateY(-1px); box-shadow:0 6px 14px rgba(22,50,79,.12); }
+    .button:focus-visible,.number:focus-visible { outline:3px solid var(--blue); outline-offset:2px; }
+    .button.primary { color:white; background:var(--blue); border-color:var(--blue); }
+    .numpad { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+    .number { display:grid; place-items:center; min-height:45px; padding:0; color:var(--navy); font-size:1.05rem; font-weight:900; background:#f4f8fc; border:0; border-radius:10px; cursor:pointer; }
+    .number:hover { color:white; background:var(--blue); }
+    .hint { margin:0; color:var(--muted); font-size:.82rem; line-height:1.5; }
+    @media (max-width:720px) { .app { width:min(100% - 20px,560px); padding-top:22px; } .game-shell { grid-template-columns:1fr; gap:20px; padding:16px; border-radius:21px; } .side { display:grid; grid-template-columns:1fr 1fr; align-items:start; } .meta,.status,.actions,.hint { grid-column:1 / -1; } .actions { grid-template-columns:repeat(3,1fr); } .button { min-height:42px; padding:8px; font-size:.85rem; text-align:center; } .numpad { grid-column:1 / -1; grid-template-columns:repeat(9,1fr); } }
+    @media (max-width:410px) { header { margin-bottom:17px; } .timer { min-width:92px; padding:9px 11px; } .mark { width:38px; height:38px; border-radius:11px; font-size:1.2rem; } .side { grid-template-columns:1fr; } .numpad { grid-template-columns:repeat(5,1fr); } .cell { font-size:clamp(.95rem,7.2vw,1.5rem); } }
   </style>
 </head>
 <body>
   <main class="app">
-    <header>
-      <h1><span class="mark" aria-hidden="true">#</span> Sudoku</h1>
-      <div class="timer" id="timer" aria-label="Spielzeit">00:00</div>
-    </header>
-
+    <header><h1><span class="mark" aria-hidden="true">#</span> Sudoku</h1><div class="timer" id="timer" aria-label="Spielzeit">00:00</div></header>
     <section class="game-shell" aria-label="Sudoku-Spiel">
-      <div class="board-wrap">
-        <div id="board" class="sudoku" role="grid" aria-label="Sudoku-Spielfeld"></div>
-      </div>
-
+      <div class="board-wrap"><div id="board" class="sudoku" role="grid" aria-label="Sudoku-Spielfeld"></div></div>
       <aside class="side">
-        <div class="meta">
-          <label for="difficulty">Schwierigkeit</label>
-          <select id="difficulty">
-            <option value="easy">Leicht</option>
-            <option value="medium" selected>Mittel</option>
-            <option value="hard">Schwer</option>
-          </select>
-        </div>
-
+        <div class="meta"><label for="difficulty">Schwierigkeit</label><select id="difficulty"><option value="easy">Leicht</option><option value="medium" selected>Mittel</option><option value="hard">Schwer</option></select></div>
         <p class="status" id="status" aria-live="polite">Wähle ein Feld und trage eine Zahl ein.</p>
-
-        <div class="actions" aria-label="Spielaktionen">
-          <button class="button primary" id="check" type="button">Prüfen</button>
-          <button class="button" id="hint" type="button">Hinweis</button>
-          <button class="button" id="new-game" type="button">Neues Spiel</button>
-          <button class="button" id="restart" type="button">Zurücksetzen</button>
-        </div>
-
-        <div class="numpad" aria-label="Zahlenfeld">
-          <button class="number" type="button" data-number="1">1</button>
-          <button class="number" type="button" data-number="2">2</button>
-          <button class="number" type="button" data-number="3">3</button>
-          <button class="number" type="button" data-number="4">4</button>
-          <button class="number" type="button" data-number="5">5</button>
-          <button class="number" type="button" data-number="6">6</button>
-          <button class="number" type="button" data-number="7">7</button>
-          <button class="number" type="button" data-number="8">8</button>
-          <button class="number" type="button" data-number="9">9</button>
-          <button class="number" type="button" data-number="0" aria-label="Feld leeren">×</button>
-        </div>
+        <div class="actions" aria-label="Spielaktionen"><button class="button primary" id="check" type="button">Prüfen</button><button class="button" id="hint" type="button">Hinweis</button><button class="button" id="new-game" type="button">Neues Spiel</button><button class="button" id="restart" type="button">Zurücksetzen</button></div>
+        <div class="numpad" aria-label="Zahlenfeld"><button class="number" type="button" data-number="1">1</button><button class="number" type="button" data-number="2">2</button><button class="number" type="button" data-number="3">3</button><button class="number" type="button" data-number="4">4</button><button class="number" type="button" data-number="5">5</button><button class="number" type="button" data-number="6">6</button><button class="number" type="button" data-number="7">7</button><button class="number" type="button" data-number="8">8</button><button class="number" type="button" data-number="9">9</button><button class="number" type="button" data-number="0" aria-label="Feld leeren">×</button></div>
         <p class="hint">Tastatur: 1–9 setzen, Entf oder Rücktaste löscht das ausgewählte Feld.</p>
       </aside>
     </section>
   </main>
-
   <script>
     const puzzles = {
       easy: [
-        {
-          grid: '530070000600195000098000060800060003400803001700020006060000280000419005000080079',
-          solution: '534678912672195348198342567859761423426853791713924856961537284287419635345286179'
-        },
-        {
-          grid: '200080300060070084030500209000105408000000000402706000301007040720040060004010003',
-          solution: '245981376169273584837564219976125438513498627482736951391657842728349165654812793'
-        }
+        { grid:'530070000600195000098000060800060003400803001700020006060000280000419005000080079', solution:'534678912672195348198342567859761423426853791713924856961537284287419635345286179' },
+        { grid:'200080300060070084030500209000105408000000000402706000301007040720040060004010003', solution:'245981376169273584837564219976125438513498627482736951391657842728349165654812793' }
       ],
       medium: [
-        {
-          grid: '000260701680070090190004500820100040004602900050003028009300074040050036703018000',
-          solution: '435269781682571493197834562826195347374682915951743628519326874248957136763418259'
-        },
-        {
-          grid: '000000907000420180000705026100904000050000040000507009920108000034059000507000000',
-          solution: '462831957795426183381795426173984265659312748248567319926178534834259671517643892'
-        }
+        { grid:'000260701680070090190004500820100040004602900050003028009300074040050036703018000', solution:'435269781682571493197834562826195347374682915951743628519326874248957136763418259' },
+        { grid:'000000907000420180000705026100904000050000040000507009920108000034059000507000000', solution:'462831957795426183381795426173984265659312748248567319926178534834259671517643892' }
       ],
       hard: [
-        {
-          grid: '000000010400000000020000000000050407008000300001090000300400200050100000000806000',
-          solution: '693784512487512936125963874932651487568247391741398625319475268856129743274836159'
-        },
-        {
-          grid: '000000000000003085001020000000507000004000100090000000500000073002010000000040009',
-          solution: '987654321246173985351928746128537694634892157795461832519286473472319568863745219'
-        }
+        { grid:'000000010400000000020000000000050407008000300001090000300400200050100000000806000', solution:'693784512487512936125963874932651487568247391741398625319475268856129743274836159' },
+        { grid:'000000000000003085001020000000507000004000100090000000500000073002010000000040009', solution:'987654321246173985351928746128537694634892157795461832519286473472319568863745219' }
       ]
     };
 
@@ -349,168 +90,82 @@
     const timerElement = document.getElementById('timer');
     const statusElement = document.getElementById('status');
     const difficultyElement = document.getElementById('difficulty');
-    let game;
-    let selected = null;
-    let seconds = 0;
-    let clock;
-    const usedPuzzle = { easy: 0, medium: 0, hard: 0 };
+    let game, selected = null, seconds = 0, clock, gameSeed = 1;
 
-    function setStatus(message, success = false) {
-      statusElement.textContent = message;
-      statusElement.classList.toggle('success', success);
+    function setStatus(message, success = false) { statusElement.textContent = message; statusElement.classList.toggle('success', success); }
+    function formatTime(value) { return `${Math.floor(value / 60).toString().padStart(2,'0')}:${(value % 60).toString().padStart(2,'0')}`; }
+    function resetTimer() { clearInterval(clock); seconds = 0; timerElement.textContent = formatTime(0); clock = setInterval(() => { seconds += 1; timerElement.textContent = formatTime(seconds); }, 1000); }
+    function seededRandom(seed) { let state = (seed >>> 0) || 1; return () => ((state = (state * 1664525 + 1013904223) >>> 0) / 4294967296); }
+    function shuffled(values, random) { const result = [...values]; for (let i = result.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [result[i], result[j]] = [result[j], result[i]]; } return result; }
+    function makeVariant(base, seed) {
+      const random = seededRandom(seed);
+      const rows = shuffled([0,1,2], random).flatMap(band => shuffled([band * 3, band * 3 + 1, band * 3 + 2], random));
+      const cols = shuffled([0,1,2], random).flatMap(stack => shuffled([stack * 3, stack * 3 + 1, stack * 3 + 2], random));
+      const digits = shuffled(['1','2','3','4','5','6','7','8','9'], random);
+      const digitMap = Object.fromEntries(digits.map((digit, index) => [String(index + 1), digit]));
+      const transform = source => rows.map(row => cols.map(col => source[row * 9 + col] === '0' ? '0' : digitMap[source[row * 9 + col]]).join('')).join('');
+      return { grid: transform(base.grid), solution: transform(base.solution) };
     }
-
-    function formatTime(value) {
-      const minutes = Math.floor(value / 60).toString().padStart(2, '0');
-      const secs = (value % 60).toString().padStart(2, '0');
-      return `${minutes}:${secs}`;
-    }
-
-    function resetTimer() {
-      clearInterval(clock);
-      seconds = 0;
-      timerElement.textContent = formatTime(seconds);
-      clock = setInterval(() => {
-        seconds += 1;
-        timerElement.textContent = formatTime(seconds);
-      }, 1000);
-    }
-
     function renderBoard() {
       board.innerHTML = '';
       game.cells.forEach((value, index) => {
         const button = document.createElement('button');
         const given = game.givens[index];
-        button.type = 'button';
-        button.className = `cell${given ? ' given' : ''}`;
-        button.dataset.index = index;
-        button.setAttribute('role', 'gridcell');
+        button.type = 'button'; button.className = `cell${given ? ' given' : ''}`; button.dataset.index = index; button.setAttribute('role','gridcell');
         button.setAttribute('aria-label', `Zeile ${Math.floor(index / 9) + 1}, Spalte ${(index % 9) + 1}${value ? `, ${value}` : ', leer'}`);
-        button.textContent = value || '';
-        button.disabled = given;
-        button.addEventListener('click', () => selectCell(index));
-        board.appendChild(button);
+        button.textContent = value || ''; button.disabled = given; button.addEventListener('click', () => selectCell(index)); board.appendChild(button);
       });
       applyHighlights();
     }
-
-    function selectCell(index) {
-      if (game.givens[index] || game.complete) return;
-      selected = index;
-      applyHighlights();
-    }
-
+    function selectCell(index) { if (game.givens[index] || game.complete) return; selected = index; applyHighlights(); }
     function applyHighlights() {
-      const selectedValue = selected !== null ? game.cells[selected] : '';
+      const selectedValue = selected === null ? '' : game.cells[selected];
       document.querySelectorAll('.cell').forEach((cell, index) => {
-        cell.classList.remove('selected', 'related', 'same', 'incorrect', 'hinted');
-        const row = Math.floor(index / 9);
-        const col = index % 9;
+        cell.classList.remove('selected','related','same','incorrect','hinted');
         if (selected !== null) {
-          const selectedRow = Math.floor(selected / 9);
-          const selectedCol = selected % 9;
-          const sameBox = Math.floor(row / 3) === Math.floor(selectedRow / 3) && Math.floor(col / 3) === Math.floor(selectedCol / 3);
-          if (row === selectedRow || col === selectedCol || sameBox) cell.classList.add('related');
+          const row = Math.floor(index / 9), col = index % 9, selectedRow = Math.floor(selected / 9), selectedCol = selected % 9;
+          if (row === selectedRow || col === selectedCol || (Math.floor(row / 3) === Math.floor(selectedRow / 3) && Math.floor(col / 3) === Math.floor(selectedCol / 3))) cell.classList.add('related');
           if (index === selected) cell.classList.add('selected');
           if (selectedValue && game.cells[index] === selectedValue) cell.classList.add('same');
         }
-        if (game.incorrect.has(index)) cell.classList.add('incorrect');
-        if (game.hints.has(index)) cell.classList.add('hinted');
+        if (game.incorrect.has(index)) cell.classList.add('incorrect'); if (game.hints.has(index)) cell.classList.add('hinted');
       });
     }
-
     function enterNumber(number) {
-      if (selected === null || game.givens[selected] || game.complete) {
-        setStatus('Wähle zuerst ein leeres Feld aus.');
-        return;
-      }
-      game.cells[selected] = number === '0' ? '' : number;
-      game.incorrect.delete(selected);
-      game.hints.delete(selected);
-      renderBoard();
+      if (selected === null || game.givens[selected] || game.complete) { setStatus('Wähle zuerst ein leeres Feld aus.'); return; }
+      game.cells[selected] = number === '0' ? '' : number; game.incorrect.delete(selected); game.hints.delete(selected); renderBoard();
       if (game.cells.every(Boolean)) checkBoard(true);
     }
-
     function checkBoard(silent = false) {
-      const wrong = [];
-      game.cells.forEach((value, index) => {
-        if (value && value !== game.solution[index]) wrong.push(index);
-      });
-      game.incorrect = new Set(wrong);
-      if (wrong.length) {
-        setStatus(`${wrong.length} ${wrong.length === 1 ? 'Feld ist' : 'Felder sind'} noch nicht richtig.`, false);
-      } else if (game.cells.every(Boolean)) {
-        game.complete = true;
-        clearInterval(clock);
-        setStatus(`Geschafft! Du hast das Sudoku in ${formatTime(seconds)} gelöst.`, true);
-      } else if (!silent) {
-        setStatus('Bis hierhin ist alles richtig – weiter so!', true);
-      }
+      const wrong = game.cells.flatMap((value, index) => value && value !== game.solution[index] ? [index] : []); game.incorrect = new Set(wrong);
+      if (wrong.length) setStatus(`${wrong.length} ${wrong.length === 1 ? 'Feld ist' : 'Felder sind'} noch nicht richtig.`);
+      else if (game.cells.every(Boolean)) { game.complete = true; clearInterval(clock); setStatus(`Geschafft! Du hast das Sudoku in ${formatTime(seconds)} gelöst.`, true); }
+      else if (!silent) setStatus('Bis hierhin ist alles richtig – weiter so!', true);
       applyHighlights();
     }
-
     function giveHint() {
       if (game.complete) return;
       const candidate = selected !== null && !game.givens[selected] ? selected : game.cells.findIndex((value, index) => !value && !game.givens[index]);
-      if (candidate === -1) {
-        checkBoard();
-        return;
-      }
-      game.cells[candidate] = game.solution[candidate];
-      game.hints.add(candidate);
-      game.incorrect.delete(candidate);
-      selected = candidate;
-      setStatus('Ein Feld wurde für dich ausgefüllt.');
-      renderBoard();
+      if (candidate === -1) { checkBoard(); return; }
+      game.cells[candidate] = game.solution[candidate]; game.hints.add(candidate); game.incorrect.delete(candidate); selected = candidate; setStatus('Ein Feld wurde für dich ausgefüllt.'); renderBoard();
       if (game.cells.every(Boolean)) checkBoard(true);
     }
-
-    function startGame(next = false) {
-      const level = difficultyElement.value;
-      if (next) usedPuzzle[level] = (usedPuzzle[level] + 1) % puzzles[level].length;
-      const puzzle = puzzles[level][usedPuzzle[level]];
-      game = {
-        cells: [...puzzle.grid].map(value => value === '0' ? '' : value),
-        givens: [...puzzle.grid].map(value => value !== '0'),
-        solution: [...puzzle.solution],
-        incorrect: new Set(),
-        hints: new Set(),
-        complete: false
-      };
-      selected = null;
-      setStatus('Wähle ein Feld und trage eine Zahl ein.');
-      renderBoard();
-      resetTimer();
+    function startGame(isNew = false) {
+      if (isNew) gameSeed += 1;
+      const level = difficultyElement.value; const bases = puzzles[level];
+      const levelOffset = { easy: 100, medium: 1000, hard: 10000 }[level];
+      const activePuzzle = makeVariant(bases[gameSeed % bases.length], levelOffset + gameSeed * 7919);
+      game = { cells:[...activePuzzle.grid].map(value => value === '0' ? '' : value), givens:[...activePuzzle.grid].map(value => value !== '0'), solution:[...activePuzzle.solution], incorrect:new Set(), hints:new Set(), complete:false };
+      selected = null; setStatus('Wähle ein Feld und trage eine Zahl ein.'); renderBoard(); resetTimer();
     }
-
-    document.querySelectorAll('[data-number]').forEach(button => {
-      button.addEventListener('click', () => enterNumber(button.dataset.number));
-    });
-    document.getElementById('check').addEventListener('click', () => checkBoard());
-    document.getElementById('hint').addEventListener('click', giveHint);
-    document.getElementById('new-game').addEventListener('click', () => startGame(true));
-    document.getElementById('restart').addEventListener('click', () => startGame(false));
-    difficultyElement.addEventListener('change', () => startGame(false));
-
+    document.querySelectorAll('[data-number]').forEach(button => button.addEventListener('click', () => enterNumber(button.dataset.number)));
+    document.getElementById('check').addEventListener('click', () => checkBoard()); document.getElementById('hint').addEventListener('click', giveHint); document.getElementById('new-game').addEventListener('click', () => startGame(true)); document.getElementById('restart').addEventListener('click', () => startGame(false)); difficultyElement.addEventListener('change', () => startGame(true));
     document.addEventListener('keydown', event => {
       if (/^[1-9]$/.test(event.key)) enterNumber(event.key);
-      if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0') {
-        event.preventDefault();
-        enterNumber('0');
-      }
-      if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-        if (selected === null) return;
-        const row = Math.floor(selected / 9);
-        const col = selected % 9;
-        const delta = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[event.key];
-        const newRow = Math.max(0, Math.min(8, row + delta[0]));
-        const newCol = Math.max(0, Math.min(8, col + delta[1]));
-        const next = newRow * 9 + newCol;
-        if (!game.givens[next]) selectCell(next);
-        event.preventDefault();
-      }
+      if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0') { event.preventDefault(); enterNumber('0'); }
+      const moves = { ArrowUp:[-1,0], ArrowDown:[1,0], ArrowLeft:[0,-1], ArrowRight:[0,1] };
+      if (moves[event.key] && selected !== null) { const [vertical,horizontal] = moves[event.key], row = Math.floor(selected / 9), col = selected % 9, target = Math.max(0,Math.min(8,row + vertical)) * 9 + Math.max(0,Math.min(8,col + horizontal)); if (!game.givens[target]) selectCell(target); event.preventDefault(); }
     });
-
     startGame();
   </script>
 
@@ -522,5 +177,6 @@
       });
     }
   </script>
+
 </body>
 </html>

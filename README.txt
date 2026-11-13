@@ -1,22 +1,24 @@
-DIRTY VELVET SUDOKU – PWA
+DIRTY VELVET SUDOKU – PWA (aktualisierte Version)
 
-Enthaltene Dateien:
-- index.html: dein bestehendes Sudoku mit PWA-Einbindung
-- manifest.json: App-Name, Darstellung und Symbole
-- service-worker.js: Offline-Cache
-- icons/: App-Symbole
+Diese Version basiert auf deiner neu hochgeladenen index.html.
+Die Sudoku-Spiellogik wurde beibehalten; ergänzt wurden PWA-Metadaten und Service-Worker-Registrierung.
 
-INSTALLATION AUF GITHUB:
-1. Öffne https://github.com/dirtyvelvet/Sudoku
-2. Lade die Dateien und den Ordner icons/ in das Repository hoch.
-3. Wichtig: index.html muss im selben Verzeichnis liegen wie manifest.json und service-worker.js.
-4. Committe die Änderungen.
-5. Warte, bis GitHub Pages die Änderungen veröffentlicht hat.
+Dateien:
+- index.html
+- manifest.json
+- service-worker.js
+- icons/icon-192.png
+- icons/icon-512.png
+- icons/icon-512-maskable.png
 
-Danach:
-- Android: Sudoku-Website in Chrome öffnen und "Installieren" bzw. "Zum Startbildschirm hinzufügen" wählen.
-- iPhone: In Safari öffnen > Teilen > Zum Home-Bildschirm.
+GitHub:
+1. Alle Dateien in das Hauptverzeichnis des Repositorys dirtyvelvet/Sudoku hochladen.
+2. Vorhandene index.html ersetzen.
+3. Vorhandene service-worker.js ersetzen.
+4. Commit changes.
 
-Hinweis:
-Die Offline-Version wird beim ersten erfolgreichen Online-Aufruf zwischengespeichert.
-Nach Updates kann es beim ersten Aufruf nötig sein, die Seite einmal neu zu laden.
+Nach Veröffentlichung einmal online neu laden.
+Android: Chrome-Menü > App installieren / Zum Startbildschirm hinzufügen.
+iPhone: Safari > Teilen > Zum Home-Bildschirm.
+
+Offline-Cache wird beim ersten erfolgreichen Online-Besuch aufgebaut.
